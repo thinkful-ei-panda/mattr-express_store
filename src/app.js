@@ -27,6 +27,8 @@ app.post('/user', (req, res) => {
   // get the data
   const { username, password, favoriteClub, newsLetter=false } = req.body;
 
+  console.log(req.body);
+
   // All are required, check if they were sent
   if (!username) {
     return res
@@ -82,9 +84,6 @@ app.post('/user', (req, res) => {
       .send('Not a valid club');
   }
 
-  // at this point all validation passed
-  res.send('All validation passed');
-
   const id = uuid();
   const newUser = {
     id,
@@ -96,15 +95,42 @@ app.post('/user', (req, res) => {
 
   users.push(newUser);
 
+  // at this point all validation passed
   // res.send('All validation passed');
-
+  
   // res
   //   .status(201)
   //   .location(`http://localhost:8000/user/${id}`)
-  //   .json(newUser);
-
+  //   .json({id: id});
   res
     .status(201)
     .location(`http://localhost:8000/user/${id}`)
-    .json({id: id});
+    .json(newUser);
+    
 });
+
+app.delete('/user/:userId', (req, res) => {
+  const { userId } = req.params;
+  const index = users.findIndex(u => u.id === userId);
+
+  // make sure we actually find a user with that id
+  if (index === -1) {
+    return res
+      .status(404)
+      .send('User not found');
+  }
+
+  users.splice(index, 1);
+
+  // res.send('Deleted');
+  res
+    .status(204)
+    .end();
+});
+
+app.get('/user', (req, res) => {
+  res
+    .json(users);
+});
+
+module.exports=app;
